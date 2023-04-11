@@ -6,7 +6,7 @@ import gradio as gr
 import torch
 import transformers
 from peft import PeftModel
-from transformers import GenerationConfig, LlamaForCausalLM, LlamaTokenizer
+from transformers import GenerationConfig, LlamaForCausalLM, LlamaTokenizer, GPTNeoXForCausalLM, GPTNeoXTokenizerFast
 
 from utils.callbacks import Iteratorize, Stream
 from utils.prompter import Prompter
@@ -37,9 +37,9 @@ def main(
     ), "Please specify a --base_model, e.g. --base_model='huggyllama/llama-7b'"
 
     prompter = Prompter(prompt_template)
-    tokenizer = LlamaTokenizer.from_pretrained(base_model)
+    tokenizer = GPTNeoXTokenizerFast.from_pretrained(base_model)
     if device == "cuda":
-        model = LlamaForCausalLM.from_pretrained(
+        model = GPTNeoXForCausalLM.from_pretrained(
             base_model,
             load_in_8bit=load_8bit,
             torch_dtype=torch.float16,
@@ -51,7 +51,7 @@ def main(
             torch_dtype=torch.float16,
         )
     elif device == "mps":
-        model = LlamaForCausalLM.from_pretrained(
+        model = GPTNeoXForCausalLM.from_pretrained(
             base_model,
             device_map={"": device},
             torch_dtype=torch.float16,
@@ -63,7 +63,7 @@ def main(
             torch_dtype=torch.float16,
         )
     else:
-        model = LlamaForCausalLM.from_pretrained(
+        model = GPTNeoXForCausalLM.from_pretrained(
             base_model, device_map={"": device}, low_cpu_mem_usage=True
         )
         model = PeftModel.from_pretrained(
